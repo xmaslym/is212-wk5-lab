@@ -28,12 +28,36 @@ class Duck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="available")
+    duck_type = db.Column(db.String(20), nullable=False, default="duck")
 
     loans = db.relationship("Loan", back_populates="duck", cascade="all, delete-orphan")
+
+    __mapper_args__ = {
+        "polymorphic_on": duck_type,
+        "polymorphic_identity": "duck",
+    }
+
+    @property
+    def loan_period_days(self) -> int:
+        return 7
 
     @property
     def is_available(self) -> bool:
         return self.status == "available"
+
+
+class StandardDuck(Duck):
+    __mapper_args__ = {"polymorphic_identity": "standard"}
+
+
+class DeluxeDuck(Duck):
+    deposit = db.Column(db.Float, nullable=True)
+
+    __mapper_args__ = {"polymorphic_identity": "deluxe"}
+
+    @property
+    def loan_period_days(self) -> int:
+        return 14
 
 
 class Loan(db.Model):
@@ -62,7 +86,7 @@ class Loan(db.Model):
             member_id=member_id,
             duck_id=duck_id,
             borrowed_on=date.today(),
-            due_on=date.today() + timedelta(days=7),
+            due_on=date.today() + timedelta(days=duck.loan_period_days),
         )
         db.session.add(loan)
         duck.status = "on loan"
@@ -124,10 +148,10 @@ def create_app() -> Flask:
         if Member.query.first() is None:
             members = [Member(name="Ada"), Member(name="Grace"), Member(name="Linus")]
             ducks = [
-                Duck(name="Quacker 1"),
-                Duck(name="Debugger Buddy"),
-                Duck(name="Syntax Squeaker"),
-                Duck(name="Byte Bot"),
+                StandardDuck(name="Quacker 1"),
+                StandardDuck(name="Debugger Buddy"),
+                StandardDuck(name="Syntax Squeaker"),
+                DeluxeDuck(name="Byte Bot", deposit=25.0),
             ]
             db.session.add_all(members + ducks)
             db.session.commit()

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from app import app, db, Duck, Loan, Member
+from app import app, db, DeluxeDuck, Duck, Loan, Member
 
 
 def test_loan_is_created_with_due_date_seven_days_later():
@@ -20,6 +20,23 @@ def test_loan_is_created_with_due_date_seven_days_later():
         assert loan.duck_id == duck.id
         assert loan.due_on - loan.borrowed_on == timedelta(days=7)
         assert duck.status == "on loan"
+
+
+def test_deluxe_duck_loan_is_created_with_due_date_fourteen_days_later():
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+        member = Member(name="Ada")
+        duck = DeluxeDuck(name="Deluxe Quacker", deposit=25.0)
+        db.session.add_all([member, duck])
+        db.session.commit()
+
+        loan = Loan.create(member_id=member.id, duck_id=duck.id)
+
+        assert loan is not None
+        assert duck.deposit == 25.0
+        assert loan.due_on - loan.borrowed_on == timedelta(days=14)
 
 
 def test_member_can_have_multiple_active_loans():
