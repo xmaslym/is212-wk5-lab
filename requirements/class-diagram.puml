@@ -1,17 +1,34 @@
-@startuml 
+@startuml
 hide circle 
+
 class Member { 
     id : int 
     name : str 
 } 
+
 class Duck { 
-    id : int name : str 
+    id : int 
+    name : str 
 } 
+
+class StandardDuck {
+    loan_period_days : int = 7
+}
+
+class DeluxeDuck {
+    loan_period_days : int = 14
+    deposit : float
+}
+
 class Loan { 
     id : int 
     borrowed_on : date 
     due_on : date 
 } 
+
+Duck <|-- StandardDuck
+Duck <|-- DeluxeDuck
+
 Member "1" -- "0..*" Loan : holds > 
-Duck "1" -- "0..*" Loan : is borrowed via > 
+Duck "1" -- "0..*" Loan : is borrowed via >
 @enduml

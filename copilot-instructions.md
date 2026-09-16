@@ -8,6 +8,7 @@ Before implementing a feature:
 - treat the UML sequence diagram as the behavioural design scaffold;
 - preserve the user-story acceptance criteria;
 - keep business logic out of Flask routes where reasonably possible.
+- never commit secrets
 
 After implementation:
 - run the complete test suite;
