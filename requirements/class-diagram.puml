@@ -1,0 +1,17 @@
+@startuml 
+hide circle 
+class Member { 
+    id : int 
+    name : str 
+} 
+class Duck { 
+    id : int name : str 
+} 
+class Loan { 
+    id : int 
+    borrowed_on : date 
+    due_on : date 
+} 
+Member "1" -- "0..*" Loan : holds > 
+Duck "1" -- "0..*" Loan : is borrowed via > 
+@enduml
